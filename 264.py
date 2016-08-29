@@ -2,6 +2,7 @@
 COSC264 2016 - Assignment
 
 Written by:
+  - Jessica Robertson
   - Maxwell Clarke (maxeonyx@gmail.com)
 
 This is the module file for the common code in the sender, channel and reciever programs.
@@ -19,6 +20,15 @@ and   '4001' is the port to receive from.
 import socket
 import threading
 from sys import argv
+
+class Packet:
+    '''This is the packet class. Vur exciting hur hur hur'''
+    def __init__(self, magicno, ptype, seqno, dataLen, data):
+        self.magicno = magicno # 0x497E, if different value then reject
+        self.ptype = ptype # dataPacket or acknowledgementPacket
+        self.seqno = seqno # restricted to 0 and 1
+        self.dataLen = dataLen # between 0 and 512, num user bytes carried
+        self.data = data # contains actual user data
 
 def send():
     """
