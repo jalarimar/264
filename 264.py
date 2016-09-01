@@ -23,11 +23,11 @@ from sys import argv
 
 class Packet:
     '''This is the packet class. Vur exciting hur hur hur'''
-    def __init__(self, magicno, ptype, seqno, dataLen, data):
+    def __init__(self, magicno, packet_type, seqno, data_len, data):
         self.magicno = magicno # 0x497E, if different value then reject
-        self.ptype = ptype # dataPacket or acknowledgementPacket
+        self.packet_type = packet_type # dataPacket or acknowledgementPacket
         self.seqno = seqno # restricted to 0 and 1
-        self.dataLen = dataLen # between 0 and 512, num user bytes carried
+        self.data_len = data_len # between 0 and 512, num user bytes carried
         self.data = data # contains actual user data
 
 def send():

@@ -4,6 +4,7 @@
 
 import sys
 import socket
+import select
 
 IP = '127.0.0.1'
 
@@ -33,24 +34,43 @@ def main():
     send_file = open(file_name_to_send, 'r')
         
     nek = 0 # gonna be called next but python reserved word
-    exitFlag = False
+    exit_flag = False
+    num_sent_packets = 0
     
-    while True:
+    while exit_flag == False:
         block = send_file.read(512)
         bytes_read = len(bytes(block, "utf8"))    
         if bytes_read == 0:
             packet = Packet(0x497E, "dataPacket", nek, 0, '')
-            exitFlag = True
+            exit_flag = True
         elif bytes_read > 0:
             packet = Packet(0x497E, "dataPacket", nek, bytes_read, block)
         else:
             print("Negative bytes read?? Something went horrifically wrong")
             return
-        packetBuffer = packet # place the packet into this buffer? wut how
-    
-        while exitFlag == False:
+        packet_buffer = packet # place the packet into this buffer? wut how
+        
+        success = False
+        while success == False:
             # this is the inner loop of truth
-            e = 9
+            sout.send(bytes(packet_buffer))
+            readable, writable, exceptional = select.select([sin], [], [], 1)
+            if readable:
+                rcvd, address = readable.recvfrom(512)
+                if rcvd.magicno == 0x497E \
+                   and rcvd.packet_type == "acknowledgementPacket" \
+                   and rcvd.data_len == 0 \
+                   and rcvd.seqno == nek:
+                    nek = 1 - nek
+                    success = True
+                    num_sent_packets += 1
+                    
+        if exit_flag == True: # just before the outer loop exits
+            send_file.close()
+            sin.close()
+            sout.close()
+            print(num_sent_packets)
+                
     
 
 main()
