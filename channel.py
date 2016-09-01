@@ -1,6 +1,7 @@
 # hash tag awesome
 import sys
 import socket
+import random
 
 IP = '127.0.0.1'
 
@@ -33,15 +34,24 @@ def main():
     rin_port = int(sys.argv[6]) # port to send to rin from crout
     crout.connect((IP, rin_port))
     
-    plr = float(sys.argv[7]) # packet_loss_rate
-    if (plr < 0) or (plr >= 1):
+    packet_loss_rate = float(sys.argv[7])
+    if (packet_loss_rate < 0) or (packet_loss_rate >= 1):
         print("Incorrect packet loss rate")
         return
     
     while(True):
-        True = False #hehe
-        
-        
-        
+        s_readable, s_writable, s_exceptional = select.select([csin], [], [], 1)
+        r_readable, r_writable, r_exceptional = select.select([crin], [], [], 1)
+        if s_readable:
+            rcvd, address = s_readable.recvfrom(512)
+            if rcvd.magicno == 0x497E:
+                if random.random() >= packet_loss_rate:
+                    crout.send(bytes(rcvd))
+        elif r_readable:
+            rcvd, address = r_readable.recvfrom(512)
+            if rcvd.magicno == 0x497E:
+                if random.random() >= packet_loss_rate:
+                    csout.send(bytes(rcvd))        
+                    
 
 main()
