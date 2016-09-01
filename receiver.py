@@ -7,6 +7,14 @@ import socket
 
 HOST_IP = "127.0.0.1"
 
+
+def recieve(rin, rout, file):
+    
+    while True:
+        message, address = rin.recvfrom(1024)
+        file.write(message)
+
+
 def main():
     
     number_of_arguments = len(argv)
@@ -17,7 +25,7 @@ def main():
         abort("Port numbers not distinct")
         
     ports = tuple(int(p) for p in argv[1:4])
-    for port in argv[1:3]:
+    for port in ports:
         if (port < 1024) or (port > 64000):
             abort("Port {} not within valid range 1024-64000".format(port)) 
     
@@ -25,6 +33,8 @@ def main():
     file = setup_file(filename)
     
     rin, rout = setup_sockets(ports[0], ports[1], ports[2])
+    
+    recieve(rin, rout, file)
     
         
 def setup_sockets(r_in_port, r_out_port, c_r_in_port):
@@ -34,8 +44,8 @@ def setup_sockets(r_in_port, r_out_port, c_r_in_port):
     rin = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     rout = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     
-    rin.bind(HOST_IP, r_in_port)
-    rout.bind(HOST_IP, r_out_port)
+    rin.bind((HOST_IP, r_in_port))
+    rout.bind((HOST_IP, r_out_port))
     
     rout.connect((HOST_IP, c_r_in_port))
     
@@ -47,7 +57,7 @@ def setup_file(filename):
     """
     Opens the output file for write
     """
-    return open(recieved_file_name, 'w')
+    return open(filename, 'w')
     # TODO: do we want to abort if the file already exists
     
     
