@@ -1,37 +1,63 @@
-# reciever program
-import sys
+"""
+Receiver Program.
+
+"""
+from sys import argv
 import socket
 
-IP = '127.0.0.1'
+HOST_IP = "127.0.0.1"
 
 def main():
+    
+    number_of_arguments = len(argv)
+    if number_of_arguments != 5: # argv[0] is program name
+        print("Incorrect number of parameters")
+        
+    if number_of_arguments != len(set(argv)):
+        abort("Port numbers not distinct")
+        
+    ports = tuple(int(p) for p in argv[1:4])
+    for port in argv[1:3]:
+        if (port < 1024) or (port > 64000):
+            abort("Port {} not within valid range 1024-64000".format(port)) 
+    
+    filename = argv[4]
+    file = setup_file(filename)
+    
+    rin, rout = setup_sockets(ports[0], ports[1], ports[2])
+    
+        
+def setup_sockets(r_in_port, r_out_port, c_r_in_port):
+    """
+    Create and bind the reciever_in and receiver_out sockets.
+    """
     rin = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     rout = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     
-    if len(sys.argv[1:]) != 4: # argv[0] is program name
-        print("Incorrect number of parameters")
-        return
-    if len(sys.argv[1:]) != len(set(sys.argv[1:])):
-        print("Port numbers not distinct")
-        return
-    for channel_port in sys.argv[1:3]:
-        if (channel_port < 1024) or (channel_port > 64000):
-            print("Not within valid range")
-            return 
+    rin.bind(HOST_IP, r_in_port)
+    rout.bind(HOST_IP, r_out_port)
     
-    rin.bind(IP, int(sys.argv[1]))
-    rout.bind(IP, int(sys.argv[2]))
+    rout.connect((HOST_IP, c_r_in_port))
     
-    crin_port = int(sys.argv[3]) # port to send to crin from rout
-    rout.connect((IP, crin_port))    
+    return rin, rout
     
-    received_file_name = argv[4]
-    file = open(recieved_file_name, 'w')
-    # TODO: abort program when file already exists, just as a precaution
     
-    expected = 0
-        
-    while(True):
-        True = False #trololol
+    
+def setup_file(filename):
+    """
+    Opens the output file for write
+    """
+    return open(recieved_file_name, 'w')
+    # TODO: do we want to abort if the file already exists
+    
+    
+
+def abort(message):
+    """
+    Aborts the program with a message
+    """
+    print(message)
+    exit()
+    
     
 main()
