@@ -23,7 +23,7 @@ from sys import argv
 
 
 HOST_IP = "127.0.0.1"
-BLOCK_SIZE = 512
+BLOCK_SIZE = 30
 # Packet size has four ints in addition to the data
 PACKET_SIZE = BLOCK_SIZE + 4*4
 
