@@ -23,6 +23,9 @@ from sys import argv
 
 
 HOST_IP = "127.0.0.1"
+BLOCK_SIZE = 512
+# Packet size has four ints in addition to the data
+PACKET_SIZE = BLOCK_SIZE + 4*4
 
 
 class Packet:
@@ -30,7 +33,7 @@ class Packet:
     Class to encapsulate a packet.
     TODO: Serialize to a utf-8 string and back
     """
-    STRUCT_FORMAT = struct.Struct("iiii512s")
+    STRUCT_FORMAT = struct.Struct("iiii{BLOCK_SIZE}s".format(BLOCK_SIZE=BLOCK_SIZE))
     
     ACK = 1
     DATA = 2
@@ -41,10 +44,10 @@ class Packet:
         self.seqno = seqno # restricted to 0 and 1
         self.data = data
         
-        if len(data) <= 512:
+        if len(data) <= BLOCK_SIZE:
             self.data_len = len(data)
         else:
-            abort("Data too long. Must be 512 bytes or less")
+            abort("Data too long. Must be {BLOCK_SIZE} bytes or less".format(BLOCK_SIZE=BLOCK_SIZE))
             
         
     def to_bytes(self):

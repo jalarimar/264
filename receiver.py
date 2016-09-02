@@ -10,10 +10,10 @@ from common import *
 def receive(rin, rout, file):
     
     while True:
-        message, address = rin.recvfrom(528)
+        message, address = rin.recvfrom(PACKET_SIZE)
         packet = Packet.from_bytes(message)
         file.write(packet.get_data())
-        print(packet.get_data())
+        print(packet.get_data(), end='')
 
 
 def main():

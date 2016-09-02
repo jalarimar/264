@@ -17,7 +17,7 @@ def send(sin, sout, file):
     num_sent_packets = 0
     
     while not exit_flag:
-        block = bytes(file.read(512), "utf-8")
+        block = bytes(file.read(BLOCK_SIZE), "utf-8")
         packet = Packet(block, 0)
         if len(block) == 0:
             exit_flag = True
