@@ -4,22 +4,23 @@ Receiver Program.
 """
 from sys import argv
 import socket
+from common import *
 
-HOST_IP = "127.0.0.1"
 
-
-def recieve(rin, rout, file):
+def receive(rin, rout, file):
     
     while True:
-        message, address = rin.recvfrom(1024)
-        file.write(message)
+        message, address = rin.recvfrom(528)
+        packet = Packet.from_bytes(message)
+        file.write(packet.get_data())
+        print(packet.get_data())
 
 
 def main():
     
     number_of_arguments = len(argv)
     if number_of_arguments != 5: # argv[0] is program name
-        print("Incorrect number of parameters")
+        abort("Incorrect number of parameters")
         
     if number_of_arguments != len(set(argv)):
         abort("Port numbers not distinct")
@@ -34,7 +35,7 @@ def main():
     
     rin, rout = setup_sockets(ports[0], ports[1], ports[2])
     
-    recieve(rin, rout, file)
+    receive(rin, rout, file)
     
         
 def setup_sockets(r_in_port, r_out_port, c_r_in_port):
@@ -62,12 +63,6 @@ def setup_file(filename):
     
     
 
-def abort(message):
-    """
-    Aborts the program with a message
-    """
-    print(message)
-    exit()
     
     
 main()

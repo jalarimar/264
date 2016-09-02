@@ -10,26 +10,69 @@ This is the module file for the common code in the sender, channel and reciever 
 Currently, this can be run to spawn two threads, a receiver and a sender.
 Run like the folowing:
 
-    >>> python 264.py 4000 4001
+    >>> python common.py 4000 4001
 
 where '4000' is the port to send to
 and   '4001' is the port to receive from.
 
 """
-
+import struct
 import socket
 import threading
 from sys import argv
 
+
+HOST_IP = "127.0.0.1"
+
+
 class Packet:
-    '''This is the packet class. Vur exciting hur hur hur'''
-    def __init__(self, magicno, packet_type, seqno, data_len, data):
+    """
+    Class to encapsulate a packet.
+    TODO: Serialize to a utf-8 string and back
+    """
+    STRUCT_FORMAT = struct.Struct("iiii512s")
+    
+    ACK = 1
+    DATA = 2
+    
+    def __init__(self, data, seqno, magicno=0x497E, packet_type=DATA):
         self.magicno = magicno # 0x497E, if different value then reject
         self.packet_type = packet_type # dataPacket or acknowledgementPacket
         self.seqno = seqno # restricted to 0 and 1
-        self.data_len = data_len # between 0 and 512, num user bytes carried
-        self.data = data # contains actual user data
+        self.data = data
+        
+        if len(data) <= 512:
+            self.data_len = len(data)
+        else:
+            abort("Data too long. Must be 512 bytes or less")
+            
+        
+    def to_bytes(self):
+        return Packet.STRUCT_FORMAT.pack(
+            self.magicno,
+            self.packet_type,
+            self.seqno,
+            self.data_len,
+            self.data
+        )
+        
+    @classmethod
+    def from_bytes(cls, bytestring):
+        magicno, packet_type, seqno, data_len, data = Packet.STRUCT_FORMAT.unpack(bytestring)
+        return Packet(data, seqno, magicno, packet_type)
+        
+    def get_data(self):
+        return self.data.decode("utf-8")
 
+
+def abort(message):
+    """
+    Aborts the program with a message
+    """
+    print(message)
+    exit()
+    
+    
 def send():
     """
     Continually takes messages from input.
