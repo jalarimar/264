@@ -1,3 +1,4 @@
+<<BEGIN>>
 testfile line 0
 testfile line 1
 testfile line 2
@@ -8,3 +9,4 @@ testfile line 6
 testfile line 7
 testfile line 8
 testfile line 9
+<<END>>
