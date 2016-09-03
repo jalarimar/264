@@ -12,44 +12,39 @@ def send(sin, sout, file):
     Send thread. Sends the file contents to a receiver via the channel.
     
     """
-    nek = 0 # gonna be called next but python reserved word
+    _next = 0
     exit_flag = False
     num_sent_packets = 0
     
     while not exit_flag:
+        print("reading {} bytes".format(BLOCK_SIZE))
         block = bytes(file.read(BLOCK_SIZE), "utf-8")
-        packet = Packet(block, 0)
         if len(block) == 0:
             exit_flag = True
-        elif len(block) > 0:
-            print("packet length", len(packet.to_bytes()))
-            print("sent:\n   ", packet.to_bytes())
-            sout.send(packet.to_bytes())
+            packet = Packet(bytes(), _next)
         else:
-            abort("Negative bytes read?? Something went horrifically wrong :)")
-        
-        # packet_buffer = packet # place the packet into this buffer
-        
-        # success = False
-        # while success == False:
-        #     # this is the inner loop of truth
-        #     sout.send(bytes(packet_buffer))
-        #     readable, _, _ = select.select([sin], [], [], 1)
-        #     if readable:
-        #         rcvd, address = readable.recvfrom(512)
-        #         if rcvd.magicno == 0x497E \
-        #            and rcvd.packet_type == ACK \
-        #            and rcvd.data_len == 0 \
-        #            and rcvd.seqno == nek:
-        #             nek = 1 - nek
-        #             success = True
-        #             num_sent_packets += 1
-                
+            packet = Packet(block, _next)
+            
+        while True:
+            print("attemping to send a {} byte packet".format(PACKET_SIZE))
+            sout.send(packet.to_bytes())
+            readable, _, _ = select.select([sin], [], [], 1)
+            if readable:
+                sock = readable[0]
+                packet_bytes, address = sock.recvfrom(PACKET_SIZE)
+                packet = Packet.from_bytes(packet_bytes)
+                if packet.magicno == 0x497E \
+                   and packet.packet_type == ACK \
+                   and packet.data_len == 0 \
+                   and packet.seqno == _next:
+                   _next = 1 - _next
+                   num_sent_packets += 1
+                   break
+
     file.close()
     sin.close()
     sout.close()
     print(num_sent_packets)
-    
     
     
 
