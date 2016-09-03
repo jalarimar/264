@@ -9,11 +9,26 @@ from common import *
 
 def receive(rin, rout, file):
     
+    expected = 0
+    
     while True:
-        message, address = rin.recvfrom(PACKET_SIZE)
-        packet = Packet.from_bytes(message)
-        file.write(packet.get_data())
-        print(packet.get_data(), end='')
+        readable, _, _ = select.select([rin], [], [], 1)
+        if readable:
+            sock = readable[0]
+            message, address = rin.recvfrom(PACKET_SIZE)
+            rcvd_pack = Packet.from_bytes(message)
+            if rcvd_pack.magicno == 0x497E \
+               and rcvd_pack.packet_type == DATA:
+                ack_pack = Packet(bytes(), rcvd_pack.seqno, 0x497E, Packet.ACK)
+                rout.send(ack_pack.to_bytes())
+                if rcvd_pack.seqno == expected:
+                    expected = 1 - expected
+                    if rcvd_pack.data_len > 0:
+                        file.write(rcvd_pack.get_data())
+                    else:
+                        file.close()
+                        rin.close()
+                        rout.close()
 
 
 def main():
