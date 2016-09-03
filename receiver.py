@@ -4,6 +4,7 @@ Receiver Program.
 """
 from sys import argv
 import socket
+import select
 from common import *
 
 
@@ -18,17 +19,19 @@ def receive(rin, rout, file):
             message, address = rin.recvfrom(PACKET_SIZE)
             rcvd_pack = Packet.from_bytes(message)
             if rcvd_pack.magicno == 0x497E \
-               and rcvd_pack.packet_type == DATA:
+               and rcvd_pack.packet_type == Packet.DATA:
                 ack_pack = Packet(bytes(), rcvd_pack.seqno, 0x497E, Packet.ACK)
                 rout.send(ack_pack.to_bytes())
                 if rcvd_pack.seqno == expected:
                     expected = 1 - expected
                     if rcvd_pack.data_len > 0:
                         file.write(rcvd_pack.get_data())
+                        print(rcvd_pack.get_data(), end='')
                     else:
-                        file.close()
-                        rin.close()
-                        rout.close()
+                        break
+    file.close()
+    rin.close()
+    rout.close()
 
 
 def main():

@@ -34,7 +34,7 @@ def send(sin, sout, file):
                 packet_bytes, address = sock.recvfrom(PACKET_SIZE)
                 packet = Packet.from_bytes(packet_bytes)
                 if packet.magicno == 0x497E \
-                   and packet.packet_type == ACK \
+                   and packet.packet_type == Packet.ACK \
                    and packet.data_len == 0 \
                    and packet.seqno == _next:
                     _next = 1 - _next
