@@ -32,7 +32,9 @@ class Packet:
     Class to encapsulate a packet.
     TODO: Serialize to a utf-8 string and back
     """
-    STRUCT_FORMAT = struct.Struct("iiii{BLOCK_SIZE}s".format(BLOCK_SIZE=BLOCK_SIZE))
+    STRUCT_HEADER = "ii"
+    STRUCT_DATA = "iiii{BLOCK_SIZE}s".format(BLOCK_SIZE=BLOCK_SIZE)
+    STRUCT_ACK = "iiii"
     
     ACK = 1
     DATA = 2
@@ -42,25 +44,37 @@ class Packet:
         self.packet_type = packet_type # dataPacket or acknowledgementPacket
         self.seqno = seqno # restricted to 0 and 1
         self.data = data
-        
-        if len(data) <= BLOCK_SIZE:
-            self.data_len = len(data)
-        else:
-            abort("Data too long. Must be {BLOCK_SIZE} bytes or less".format(BLOCK_SIZE=BLOCK_SIZE))
+        self.data_len = len(data)
             
         
     def to_bytes(self):
-        return Packet.STRUCT_FORMAT.pack(
-            self.magicno,
-            self.packet_type,
-            self.seqno,
-            self.data_len,
-            self.data
-        )
+        
+        if self.packet_type == Packet.ACK:
+            return struct.pack(Packet.STRUCT_ACK,
+                self.magicno,
+                self.packet_type,
+                self.seqno,
+                self.data_len
+            )
+        else:
+            return struct.pack(Packet.STRUCT_DATA,
+                self.magicno,
+                self.packet_type,
+                self.seqno,
+                self.data_len,
+                self.data
+            )
         
     @classmethod
     def from_bytes(cls, bytestring):
-        magicno, packet_type, seqno, data_len, data = Packet.STRUCT_FORMAT.unpack(bytestring)
+        _, packet_type = struct.unpack(Packet.STRUCT_HEADER, bytestring[:8])
+        
+        if packet_type == Packet.ACK:
+            magicno, packet_type, seqno, data_len = struct.unpack(Packet.STRUCT_ACK, bytestring)
+            data = bytes()
+        else:
+            magicno, packet_type, seqno, data_len, data = struct.unpack(Packet.STRUCT_DATA, bytestring)
+        
         return Packet(data, seqno, magicno, packet_type)
         
     def get_data(self):
