@@ -37,9 +37,9 @@ def send(sin, sout, file):
                    and packet.packet_type == ACK \
                    and packet.data_len == 0 \
                    and packet.seqno == _next:
-                   _next = 1 - _next
-                   num_sent_packets += 1
-                   break
+                    _next = 1 - _next
+                    num_sent_packets += 1
+                    break
 
     file.close()
     sin.close()
