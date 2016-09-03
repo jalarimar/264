@@ -2,10 +2,10 @@
 COSC264 2016 - Assignment
 
 Written by:
-  - Jessica Robertson
+  - Jessica Robertson (12430878)
   - Maxwell Clarke (maxeonyx@gmail.com)
 
-This is the module file for the common code in the sender, channel and reciever programs.
+This is the module file for the common code in the sender, channel and receiver programs.
 
 Currently, this can be run to spawn two threads, a receiver and a sender.
 Run like the folowing:

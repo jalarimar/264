@@ -1,0 +1,47 @@
+1. The protocol between sender and receiver as described above has (at
+least) one weakness: it has a deadlock. Please explain the notion of a
+deadlock in the context of networking protocols and describe the particular
+deadlock situation in our case. A guiding question is: what can go wrong
+and when in case certain packets are lost?
+
+
+2. What is the magicno field good for?
+
+
+3. Please explain what the select() function is doing and why it is useful
+for the channel (and in another way for the sender).
+
+
+4. Please explain how you have checked whether or not the file was
+transferred correctly (i.e. the receivers copy is identical to the
+transmitters copy).
+
+
+5. We consider different packet loss probabilities of P = 0.0, 0.01, 0.05,
+0.1, 0.2, 0.3, and a source file of length M = 512 * 100 = 51,200 bytes
+(you need to create such a file). For each value of P make ten repetitions
+of the file transfer and for each repetition record how many packets the
+sender has sent in total. Draw a graph that shows the different values of P
+on the x-axis and for each such value the average number of total packets
+(the average being taken over the ten repetitions) on the y-axis. Explain
+the results.
+Note: To produce graphs, the tool gnuplot can be useful under Linux. Its main
+advantage is that it allows for script-based (i.e. non-interactive)
+creation of graphs, but admittedly its command syntax needs some getting
+used to. However, you are free to use any tool you like (including Excel,
+Matlab, etc.) for producing graphs. Under all circumstances you need to
+make sure that axes and curves are properly labeled.
+
+
+6. Assume the following:
+-- The probability to loose an individual packet (either a dataPacket or an
+acknowledgementPacket) is P.
+-- Packet loss events are statistically independent of each other.
+-- The size of the file to be transmitted requires N packets.
+Please derive and justify an expression for the average total number of
+packets that need to be sent (including retransmissions) to transmit the
+entire file. Compare this to the (average) total number of packets you have
+observed in your experiments.
+
+
+.

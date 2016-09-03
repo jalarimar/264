@@ -1,4 +1,3 @@
-# hash tag awesome
 from sys import argv
 import socket
 from select import select

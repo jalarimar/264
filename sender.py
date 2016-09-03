@@ -28,7 +28,7 @@ def send(sin, sout, file):
         else:
             abort("Negative bytes read?? Something went horrifically wrong :)")
         
-        # packet_buffer = packet # place the packet into this buffer? wut how
+        # packet_buffer = packet # place the packet into this buffer
         
         # success = False
         # while success == False:
@@ -38,7 +38,7 @@ def send(sin, sout, file):
         #     if readable:
         #         rcvd, address = readable.recvfrom(512)
         #         if rcvd.magicno == 0x497E \
-        #            and rcvd.packet_type == "acknowledgementPacket" \
+        #            and rcvd.packet_type == ACK \
         #            and rcvd.data_len == 0 \
         #            and rcvd.seqno == nek:
         #             nek = 1 - nek
