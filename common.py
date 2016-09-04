@@ -32,7 +32,7 @@ class Packet:
     Class to encapsulate a packet.
     TODO: Serialize to a utf-8 string and back
     """
-    STRUCT_HEADER = "ii"
+    STRUCT_HEADER = "iiii"
     STRUCT_DATA = "iiii{BLOCK_SIZE}s".format(BLOCK_SIZE=BLOCK_SIZE)
     STRUCT_ACK = "iiii"
     
@@ -67,18 +67,18 @@ class Packet:
         
     @classmethod
     def from_bytes(cls, bytestring):
-        _, packet_type = struct.unpack(Packet.STRUCT_HEADER, bytestring[:8])
+        magicno, packet_type, seqno, data_len = struct.unpack(Packet.STRUCT_HEADER, bytestring[:16])
         
         if packet_type == Packet.ACK:
-            magicno, packet_type, seqno, data_len = struct.unpack(Packet.STRUCT_ACK, bytestring)
             data = bytes()
         else:
-            magicno, packet_type, seqno, data_len, data = struct.unpack(Packet.STRUCT_DATA, bytestring)
+            *_, data = struct.unpack(Packet.STRUCT_DATA, bytestring)
+            data = data[:data_len]
         
         return Packet(data, seqno, magicno, packet_type)
         
     def get_data(self):
-        return self.data.decode("utf-8").rstrip('\0')
+        return self.data.decode("utf-8")
 
 
 def abort(message):
