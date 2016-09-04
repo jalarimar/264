@@ -78,7 +78,7 @@ class Packet:
         return Packet(data, seqno, magicno, packet_type)
         
     def get_data(self):
-        return self.data.decode("utf-8")
+        return self.data.decode("utf-8").rstrip('\0')
 
 
 def abort(message):

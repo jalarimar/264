@@ -22,9 +22,11 @@ def receive(rin, rout, file):
                and rcvd_pack.packet_type == Packet.DATA:
                 ack_pack = Packet(bytes(), rcvd_pack.seqno, 0x497E, Packet.ACK)
                 rout.send(ack_pack.to_bytes())
+                print("bleep")
                 if rcvd_pack.seqno == expected:
                     expected = 1 - expected
-                    if rcvd_pack.data_len > 0:
+                    print("bloop")
+                    if len(rcvd_pack.get_data()) > 0:
                         file.write(rcvd_pack.get_data())
                         print(rcvd_pack.get_data(), end='')
                     else:
