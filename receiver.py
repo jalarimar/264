@@ -14,25 +14,27 @@ def receive(rin, rout, file):
     expected = 0
     
     while not CLOSE_REQUESTED:
-        readable, _, _ = select.select([rin], [], [], 0.0005)
+        readable, _, _ = select.select([rin], [], [], 1)
         if readable:
             sock = readable[0]
             message, address = rin.recvfrom(PACKET_SIZE)
             rcvd_pack = Packet.from_bytes(message)
             if rcvd_pack.magicno == 0x497E \
                and rcvd_pack.packet_type == Packet.DATA:
-                ack_pack = Packet(bytes(), rcvd_pack.seqno,\
-                 0x497E, Packet.ACK)
+                ack_pack = Packet(bytes(), rcvd_pack.seqno, 0x497E, Packet.ACK)
+                #print("RECEIVER: send ACK packet".format(rcvd_pack.data_len))
                 rout.send(ack_pack.to_bytes())
                 
                 if rcvd_pack.seqno == expected:
                     expected = 1 - expected
+                    #print("RECEIVER: got {} bytes".format(rcvd_pack.data_len))
                     if rcvd_pack.data_len > 0:
                         file.write(rcvd_pack.data)
+                        #print(repr(rcvd_pack.get_data()), end='')
                     else:
                         break
-                        
-                        
+    #print()
+    #print("RECEIVER: CLOSING") 
     print(expected)
     file.close()
     rin.close()
@@ -71,6 +73,7 @@ def setup_file(filename):
     Opens the output file for write
     """
     return open(filename, 'wb')
+    # TODO: do we want to abort if the file already exists
     
     
 
@@ -86,8 +89,7 @@ if __name__ == '__main__':
     ports = tuple(int(p) for p in argv[1:4])
     for port in ports:
         if (port < 1024) or (port > 64000):
-            abort("Port {} not within valid range \
-            1024-64000".format(port)) 
+            abort("Port {} not within valid range 1024-64000".format(port)) 
     
     filename = argv[4]
     

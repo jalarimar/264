@@ -70,3 +70,41 @@ entire file. Compare this to the (average) total number of packets you have
 observed in your experiments.
 
 A:
+
+ 
+require a resend = either DATA or ACK packet dropped 
+ 
+drop probability = p
+
+probablity of a successful send is the probablity that we
+successfully sent both the DATA and ACK packets
+
+probability of not dropping a packet = (1-p)
+
+probability of a successful send = (1-p)(1-p)
+
+
+the average number of times we will need to send a packet is a
+discrete random variable following a geometric distribution.
+
+Thus the number of sends (including all failures and the first
+success) is:
+
+resend count = 1/(probability of success) = 1/(1-p)(1-p)
+
+
+Therefore the average number of packets we will need to send is:
+
+av number of packets = N*(resend count) = N/(1-p)(1-p)
+
+
+Using some examples to demonstrate:
+
+N = 101, p = 0.3
+N/(1-p)(1-p) = 101/(1-0.3)(1-0.3) = 101/(0.7)(0.7) = 101/0.49 = 206.122
+
+N = 101, p = 0.1
+N/(1-p)(1-p) = 101/(1-0.1)(1-0.1) = 101/(0.9)(0.9) = 101/0.81 = 124.69
+
+N = 101, p = 0
+N/(1-p)(1-p) = 101/(1-0)(1-0) = 101/1 = 101
