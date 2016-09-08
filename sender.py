@@ -48,21 +48,8 @@ def send(sin, sout, file):
     
     
 
-def main():
+def main(filename, ports):
     
-    number_of_arguments = len(argv)
-    if number_of_arguments != 5: # argv[0] is program name
-        abort("Incorrect number of parameters")
-        
-    if number_of_arguments != len(set(argv)):
-        abort("Port numbers not distinct")
-    
-    ports = tuple(int(p) for p in argv[1:4])
-    for port in ports:
-        if (port < 1024) or (port > 64000):
-            abort("Port {} not within valid range 1024-64000".format(port))
-            
-    filename = argv[4]
     file = setup_file(filename)
     
     sin, sout = setup_sockets(ports[0], ports[1], ports[2])
@@ -84,6 +71,7 @@ def setup_sockets(s_in_port, s_out_port, c_s_in_port):
     
     return sin, sout 
     
+    
 def setup_file(filename):
     """
     Opens the input file for read
@@ -91,7 +79,20 @@ def setup_file(filename):
     return open(filename, 'rb')
         
 
-                
+if __name__ == '__main__':
     
-
-main()
+    number_of_arguments = len(argv)
+    if number_of_arguments != 5: # argv[0] is program name
+        abort("Incorrect number of parameters")
+        
+    if number_of_arguments != len(set(argv)):
+        abort("Port numbers not distinct")
+    
+    ports = tuple(int(p) for p in argv[1:4])
+    for port in ports:
+        if (port < 1024) or (port > 64000):
+            abort("Port {} not within valid range 1024-64000".format(port))
+    
+    filename = argv[4]
+    
+    main(filename, ports)

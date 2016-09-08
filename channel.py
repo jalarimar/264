@@ -21,23 +21,7 @@ def channel(packet_loss_rate, csin, csout, crin, crout):
             elif sock == crin:
                 csout.send(packet.to_bytes())
 
-def main():
-    
-    number_of_arguments = len(argv)
-    if number_of_arguments != 8: # argv[0] is program name
-        abort("Incorrect number of parameters")
-        
-    if number_of_arguments != len(set(argv)):
-        abort("Port numbers not distinct")
-    
-    ports = tuple(int(p) for p in argv[1:7])
-    for port in ports:
-        if (port < 1024) or (port > 64000):
-            abort("Port {} not within valid range 1024-64000".format(port))
-    
-    packet_loss_rate = float(argv[7])
-    if (packet_loss_rate < 0) or (packet_loss_rate >= 1):
-        abort("Incorrect packet loss rate, must be between 0 and 1")
+def main(packet_loss_rate, ports):
         
     channel(packet_loss_rate, *setup_sockets(*ports))
     
@@ -60,5 +44,22 @@ def setup_sockets(c_s_in_port, c_s_out_port, s_in_port, c_r_in_port, c_r_out_por
     
     return csin, csout, crin, crout
                     
-
-main()
+if __main__ == "__main__":
+    
+    number_of_arguments = len(argv)
+    if number_of_arguments != 8: # argv[0] is program name
+        abort("Incorrect number of parameters")
+        
+    if number_of_arguments != len(set(argv)):
+        abort("Port numbers not distinct")
+    
+    ports = tuple(int(p) for p in argv[1:7])
+    for port in ports:
+        if (port < 1024) or (port > 64000):
+            abort("Port {} not within valid range 1024-64000".format(port))
+    
+    packet_loss_rate = float(argv[7])
+    if (packet_loss_rate < 0) or (packet_loss_rate >= 1):
+        abort("Incorrect packet loss rate, must be between 0 and 1")
+        
+    main(packet_loss_rate, ports)
