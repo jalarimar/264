@@ -18,7 +18,7 @@ def send(sin, sout, file):
     
     while not exit_flag:
         print("reading {} bytes".format(BLOCK_SIZE))
-        block = bytes(file.read(BLOCK_SIZE), "utf-8")
+        block = file.read(BLOCK_SIZE)
         if len(block) == 0:
             exit_flag = True
             packet = Packet(bytes(), _next)
@@ -26,7 +26,7 @@ def send(sin, sout, file):
             packet = Packet(block, _next)
             
         while True:
-            print("attemping to send a {} byte packet".format(PACKET_SIZE))
+            print(repr("attemping to send a {} byte packet".format(PACKET_SIZE)))
             sout.send(packet.to_bytes())
             readable, _, _ = select.select([sin], [], [], 1)
             if readable:
@@ -88,7 +88,7 @@ def setup_file(filename):
     """
     Opens the input file for read
     """
-    return open(filename, 'r')
+    return open(filename, 'rb')
         
 
                 

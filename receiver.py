@@ -25,10 +25,10 @@ def receive(rin, rout, file):
                 
                 if rcvd_pack.seqno == expected:
                     expected = 1 - expected
-                    print("got {} bytes", rcvd_pack.data_len)
+                    #print("got {} bytes", rcvd_pack.data_len)
                     if rcvd_pack.data_len > 0:
-                        file.write(rcvd_pack.get_data())
-                        print(rcvd_pack.get_data(), end='')
+                        file.write(rcvd_pack.data)
+                        #print(repr(rcvd_pack.get_data()), end='')
                     else:
                         break
     file.close()
@@ -78,7 +78,7 @@ def setup_file(filename):
     """
     Opens the output file for write
     """
-    return open(filename, 'w')
+    return open(filename, 'wb')
     # TODO: do we want to abort if the file already exists
     
     
