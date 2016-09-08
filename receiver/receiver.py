@@ -7,13 +7,14 @@ import socket
 import select
 from common import *
 
+CLOSE_REQUESTED = False
 
 def receive(rin, rout, file):
     
     expected = 0
     
-    while True:
-        readable, _, _ = select.select([rin], [], [], 1)
+    while not CLOSE_REQUESTED:
+        readable, _, _ = select.select([rin], [], [], 0.1)
         if readable:
             sock = readable[0]
             message, address = rin.recvfrom(PACKET_SIZE)
@@ -21,22 +22,28 @@ def receive(rin, rout, file):
             if rcvd_pack.magicno == 0x497E \
                and rcvd_pack.packet_type == Packet.DATA:
                 ack_pack = Packet(bytes(), rcvd_pack.seqno, 0x497E, Packet.ACK)
+                print("RECEIVER: send ACK packet".format(rcvd_pack.data_len))
                 rout.send(ack_pack.to_bytes())
                 
                 if rcvd_pack.seqno == expected:
                     expected = 1 - expected
-                    #print("got {} bytes", rcvd_pack.data_len)
+                    print("RECEIVER: got {} bytes".format(rcvd_pack.data_len))
                     if rcvd_pack.data_len > 0:
                         file.write(rcvd_pack.data)
                         #print(repr(rcvd_pack.get_data()), end='')
                     else:
                         break
+    print()
+    print("RECEIVER: CLOSING") 
     file.close()
     rin.close()
     rout.close()
 
 
 def main(filename, ports):
+    
+    CLOSE_REQUESTED = False
+    
     file = setup_file(filename)
     
     rin, rout = setup_sockets(ports[0], ports[1], ports[2])

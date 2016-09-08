@@ -7,6 +7,8 @@ import socket
 import select
 from common import *
 
+CLOSE_REQUESTED = False
+
 def send(sin, sout, file):
     """
     Send thread. Sends the file contents to a receiver via the channel.
@@ -16,8 +18,8 @@ def send(sin, sout, file):
     exit_flag = False
     num_sent_packets = 0
     
-    while not exit_flag:
-        print("reading {} bytes".format(BLOCK_SIZE))
+    while not (exit_flag or CLOSE_REQUESTED):
+        print("SENDER:   reading {} bytes".format(BLOCK_SIZE))
         block = file.read(BLOCK_SIZE)
         if len(block) == 0:
             exit_flag = True
@@ -25,8 +27,8 @@ def send(sin, sout, file):
         else:
             packet = Packet(block, _next)
             
-        while True:
-            print(repr("attemping to send a {} byte packet".format(PACKET_SIZE)))
+        while not CLOSE_REQUESTED:
+            print("SENDER:   try send {} bytes".format(PACKET_SIZE))
             sout.send(packet.to_bytes())
             readable, _, _ = select.select([sin], [], [], 1)
             if readable:
@@ -40,15 +42,19 @@ def send(sin, sout, file):
                     _next = 1 - _next
                     num_sent_packets += 1
                     break
-
+    
+    print()
+    print("SENDER:   sent {} packets!".format(num_sent_packets))
+    print()
+    print("SENDER:   CLOSING") 
     file.close()
     sin.close()
     sout.close()
-    print(num_sent_packets)
-    
     
 
 def main(filename, ports):
+    
+    CLOSE_REQUESTED = False
     
     file = setup_file(filename)
     

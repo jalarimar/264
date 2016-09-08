@@ -4,24 +4,35 @@ from select import select
 import random
 from common import *
 
+CLOSE_REQUESTED = False
+
 def channel(packet_loss_rate, csin, csout, crin, crout):
     
-    while (True):
-        readable_sockets, _, _ = select([csin, crin], [], [], 1)
+    while not CLOSE_REQUESTED:
+        readable_sockets, _, _ = select([csin, crin], [], [], 0.1)
         for sock in readable_sockets:
             rcvd, address = sock.recvfrom(PACKET_SIZE)
             packet = Packet.from_bytes(rcvd)
             
             if packet.magicno != 0x497E or random.random() <= packet_loss_rate:
-                print("dropped")
+                print("CHANNEL:  dropped")
                 continue
-            print("sent")
+            print("CHANNEL:  sent")
             if sock == csin:
                 crout.send(packet.to_bytes())
             elif sock == crin:
                 csout.send(packet.to_bytes())
+    
+    print()
+    print("CHANNEL:  CLOSING")        
+    csin.close()
+    csout.close()
+    crin.close()
+    crout.close()
 
 def main(packet_loss_rate, ports):
+    
+    CLOSE_REQUESTED = False
         
     channel(packet_loss_rate, *setup_sockets(*ports))
     
@@ -44,7 +55,7 @@ def setup_sockets(c_s_in_port, c_s_out_port, s_in_port, c_r_in_port, c_r_out_por
     
     return csin, csout, crin, crout
                     
-if __main__ == "__main__":
+if __name__ == "__main__":
     
     number_of_arguments = len(argv)
     if number_of_arguments != 8: # argv[0] is program name
