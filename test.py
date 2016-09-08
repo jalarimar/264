@@ -34,8 +34,6 @@ def main(num_tests=1):
             send_thread.join()
             recv_thread.join()
         except:
-            #print("TEST:     An exception occured: possibly")
-            #print("TEST:     the user interrupted the program")
             break
         finally:
             receiver.CLOSE_REQUESTED = True
@@ -45,12 +43,14 @@ def main(num_tests=1):
             send_thread.join()
             recv_thread.join()
             chan_thread.join()
-            in_sum = md5(open("testfile.in", "rb").read()).digest()
-            out_sum = md5(open("testfile.out", "rb").read()).digest()
+            in_sum = md5(
+                open("testfile.in", "rb").read())
+                .digest()
+            out_sum = md5(
+                open("testfile.out", "rb").read())
+                .digest()
             
             stdout.flush()
-            #print()
-            #print("TEST:     md5 sum {} match!".format("DOES" if in_sum == out_sum else "DOES NOT"))
         
 if __name__ == "__main__":
     

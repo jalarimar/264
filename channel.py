@@ -14,10 +14,10 @@ def channel(packet_loss_rate, csin, csout, crin, crout):
             rcvd, address = sock.recvfrom(PACKET_SIZE)
             packet = Packet.from_bytes(rcvd)
             
-            if packet.magicno != 0x497E or random.random() <= packet_loss_rate:
-                #print("CHANNEL:  dropped")
+            if packet.magicno != 0x497E or \
+            random.random() <= packet_loss_rate:
                 continue
-            #print("CHANNEL:  sent")
+                
             try:
                 if sock == csin:
                     crout.send(packet.to_bytes())
@@ -27,8 +27,6 @@ def channel(packet_loss_rate, csin, csout, crin, crout):
                 CLOSE_REQUESTED = True
                 break
     
-    #print()
-    #print("CHANNEL:  CLOSING")        
     csin.close()
     csout.close()
     crin.close()
@@ -42,7 +40,9 @@ def main(packet_loss_rate, ports):
     
     
             
-def setup_sockets(c_s_in_port, c_s_out_port, s_in_port, c_r_in_port, c_r_out_port, r_in_port):
+def setup_sockets(c_s_in_port, c_s_out_port,\
+     s_in_port, c_r_in_port,\
+     c_r_out_port, r_in_port):
             
     csin = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     csout = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -71,10 +71,12 @@ if __name__ == "__main__":
     ports = tuple(int(p) for p in argv[1:7])
     for port in ports:
         if (port < 1024) or (port > 64000):
-            abort("Port {} not within valid range 1024-64000".format(port))
+            abort("Port {} not within valid range \
+            1024-64000".format(port))
     
     packet_loss_rate = float(argv[7])
     if (packet_loss_rate < 0) or (packet_loss_rate >= 1):
-        abort("Incorrect packet loss rate, must be between 0 and 1")
+        abort("Incorrect packet loss rate, must be \
+        between 0 and 1")
         
     main(packet_loss_rate, ports)

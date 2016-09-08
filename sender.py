@@ -1,6 +1,3 @@
-# this is how you use byte class to encode message:
-# maxwell_has_stinky_socks = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# maxwell_has_stinky_socks.sendto(bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT))
 
 from sys import argv
 import socket
@@ -11,7 +8,8 @@ CLOSE_REQUESTED = False
 
 def send(sin, sout, file):
     """
-    Send thread. Sends the file contents to a receiver via the channel.
+    Send thread. Sends the file contents to a
+    receiver via the channel.
     
     """
     _next = 0
@@ -19,7 +17,6 @@ def send(sin, sout, file):
     num_sent_packets = 0
     
     while not (exit_flag or CLOSE_REQUESTED):
-        #print("SENDER:   reading {} bytes".format(BLOCK_SIZE))
         block = file.read(BLOCK_SIZE)
         if len(block) == 0:
             exit_flag = True
@@ -28,7 +25,6 @@ def send(sin, sout, file):
             packet = Packet(block, _next)
             
         while not CLOSE_REQUESTED:
-            #print("SENDER:   try send {} bytes".format(PACKET_SIZE))
             try:
                 sout.send(packet.to_bytes())
                 num_sent_packets += 1
@@ -47,11 +43,7 @@ def send(sin, sout, file):
                     _next = 1 - _next
                     break
     
-    #print()
-    #print("SENDER:   sent {} packets!".format(num_sent_packets))
     print(num_sent_packets)
-    #print()
-    #print("SENDER:   CLOSING") 
     print(_next)
     file.close()
     sin.close()
@@ -103,7 +95,8 @@ if __name__ == '__main__':
     ports = tuple(int(p) for p in argv[1:4])
     for port in ports:
         if (port < 1024) or (port > 64000):
-            abort("Port {} not within valid range 1024-64000".format(port))
+            abort("Port {} not within valid range \
+            1024-64000".format(port))
     
     filename = argv[4]
     
