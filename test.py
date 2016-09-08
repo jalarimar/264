@@ -16,7 +16,7 @@ def start_receiver():
 def start_sender():
     sender.main("testfile.in", (2002, 2006, 2000))
     
-def main(num_tests=50):
+def main(num_tests=1):
     for _ in range(num_tests):
         
         chan_thread = threading.Thread(target=start_channel)
