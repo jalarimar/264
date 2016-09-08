@@ -1,7 +1,7 @@
 from common import *
-import sender.sender as sender
-import channel.channel as channel
-import receiver.receiver as receiver
+import sender
+import channel
+import receiver
 import threading
 import time
 from hashlib import md5
