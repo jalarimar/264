@@ -31,7 +31,7 @@ def channel(packet_loss_rate, csin, csout, crin, crout):
     crout.close()
 
 def main(packet_loss_rate, ports):
-    
+    global CLOSE_REQUESTED
     CLOSE_REQUESTED = False
         
     channel(packet_loss_rate, *setup_sockets(*ports))

@@ -18,9 +18,6 @@ def start_sender():
     
 def main(num_tests=50):
     for _ in range(num_tests):
-        receiver.CLOSE_REQUESTED = False
-        sender.CLOSE_REQUESTED = False
-        channel.CLOSE_REQUESTED = False
         
         chan_thread = threading.Thread(target=start_channel)
         recv_thread = threading.Thread(target=start_receiver)

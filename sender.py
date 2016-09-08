@@ -53,7 +53,7 @@ def send(sin, sout, file):
     
 
 def main(filename, ports):
-    
+    global CLOSE_REQUESTED
     CLOSE_REQUESTED = False
     
     file = setup_file(filename)
