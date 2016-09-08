@@ -14,7 +14,7 @@ def receive(rin, rout, file):
     expected = 0
     
     while not CLOSE_REQUESTED:
-        readable, _, _ = select.select([rin], [], [], 0.1)
+        readable, _, _ = select.select([rin], [], [], 0.0005)
         if readable:
             sock = readable[0]
             message, address = rin.recvfrom(PACKET_SIZE)
@@ -22,19 +22,20 @@ def receive(rin, rout, file):
             if rcvd_pack.magicno == 0x497E \
                and rcvd_pack.packet_type == Packet.DATA:
                 ack_pack = Packet(bytes(), rcvd_pack.seqno, 0x497E, Packet.ACK)
-                print("RECEIVER: send ACK packet".format(rcvd_pack.data_len))
+                #print("RECEIVER: send ACK packet".format(rcvd_pack.data_len))
                 rout.send(ack_pack.to_bytes())
                 
                 if rcvd_pack.seqno == expected:
                     expected = 1 - expected
-                    print("RECEIVER: got {} bytes".format(rcvd_pack.data_len))
+                    #print("RECEIVER: got {} bytes".format(rcvd_pack.data_len))
                     if rcvd_pack.data_len > 0:
                         file.write(rcvd_pack.data)
                         #print(repr(rcvd_pack.get_data()), end='')
                     else:
                         break
-    print()
-    print("RECEIVER: CLOSING") 
+    #print()
+    #print("RECEIVER: CLOSING") 
+    print(expected)
     file.close()
     rin.close()
     rout.close()

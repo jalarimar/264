@@ -6,9 +6,10 @@ import threading
 import time
 from hashlib import md5
 from sys import argv
+from sys import stdout
 
 def start_channel():
-    channel.main(0.1, (2000, 2001, 2002, 2003, 2004, 2005))
+    channel.main(0.3, (2000, 2001, 2002, 2003, 2004, 2005))
     
 def start_receiver():
     receiver.main("testfile.out", (2005, 2007, 2003))
@@ -33,8 +34,8 @@ def main(num_tests=1):
             send_thread.join()
             recv_thread.join()
         except:
-            print("TEST:     An exception occured: possibly")
-            print("TEST:     the user interrupted the program")
+            #print("TEST:     An exception occured: possibly")
+            #print("TEST:     the user interrupted the program")
             break
         finally:
             receiver.CLOSE_REQUESTED = True
@@ -46,8 +47,10 @@ def main(num_tests=1):
             chan_thread.join()
             in_sum = md5(open("testfile.in", "rb").read()).digest()
             out_sum = md5(open("testfile.out", "rb").read()).digest()
-            print()
-            print("TEST:     md5 sum {} match!".format("DOES" if in_sum == out_sum else "DOES NOT"))
+            
+            stdout.flush()
+            #print()
+            #print("TEST:     md5 sum {} match!".format("DOES" if in_sum == out_sum else "DOES NOT"))
         
 if __name__ == "__main__":
     

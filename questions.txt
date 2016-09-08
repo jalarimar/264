@@ -4,17 +4,42 @@ deadlock in the context of networking protocols and describe the particular
 deadlock situation in our case. A guiding question is: what can go wrong
 and when in case certain packets are lost?
 
+A: In networking, a deadlock is when two programs both are waiting for input from 
+each other, and so neither can complete their respective actions.
+In our instance, when the final ACK packet is dropped/lost, the "Sender" program cannot tell
+that its last packet has been received, and so it keeps attempting to send 
+packets, getting no acknowledgements since the receiver has already finished.
 
 2. What is the magicno field good for?
+
+MagicNo is used to make sure it is our program that sent the received
+packet. Since we are using UDP, any packets sent to our port will be 
+accepted regardless of the sender.
+
+A: MagicNo can also serve sort of as a checksum value. If, during transmission,
+the MagicNo field is changed, then we should drop the packet since we cannot
+be sure. However, it is much more likely that the data is modified than
+the MagicNo field, so it can't guarantee the data isn't modified.
 
 
 3. Please explain what the select() function is doing and why it is useful
 for the channel (and in another way for the sender).
 
+A: select() is a blocking call that waits on one or more sockets until
+they have data ready to be read. In other words it multiplexes sockets 
+for synchronous IO. It is useful for the channel because
+the channel has two incoming sockets, and we only want to wait until 
+one of them has data. It is useful for the sender because it allows 
+us to set a timeout to wait for an acknowledgement, whereas recvfrom()
+would block forever.
 
 4. Please explain how you have checked whether or not the file was
 transferred correctly (i.e. the receivers copy is identical to the
 transmitters copy).
+
+A: We have used an md5 checksum on the input file and the output file. This 
+gets run after transmission by our "test.py" program. if the md5 sum is the
+same then it is almost ceratin that the files are the same.
 
 
 5. We consider different packet loss probabilities of P = 0.0, 0.01, 0.05,
@@ -32,6 +57,7 @@ used to. However, you are free to use any tool you like (including Excel,
 Matlab, etc.) for producing graphs. Under all circumstances you need to
 make sure that axes and curves are properly labeled.
 
+A:
 
 6. Assume the following:
 -- The probability to loose an individual packet (either a dataPacket or an
@@ -43,5 +69,4 @@ packets that need to be sent (including retransmissions) to transmit the
 entire file. Compare this to the (average) total number of packets you have
 observed in your experiments.
 
-
-.
+A:

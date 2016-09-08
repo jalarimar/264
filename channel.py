@@ -7,24 +7,28 @@ from common import *
 CLOSE_REQUESTED = False
 
 def channel(packet_loss_rate, csin, csout, crin, crout):
-    
+    global CLOSE_REQUESTED
     while not CLOSE_REQUESTED:
-        readable_sockets, _, _ = select([csin, crin], [], [], 0.1)
+        readable_sockets, _, _ = select([csin, crin], [], [], 0.0002)
         for sock in readable_sockets:
             rcvd, address = sock.recvfrom(PACKET_SIZE)
             packet = Packet.from_bytes(rcvd)
             
             if packet.magicno != 0x497E or random.random() <= packet_loss_rate:
-                print("CHANNEL:  dropped")
+                #print("CHANNEL:  dropped")
                 continue
-            print("CHANNEL:  sent")
-            if sock == csin:
-                crout.send(packet.to_bytes())
-            elif sock == crin:
-                csout.send(packet.to_bytes())
+            #print("CHANNEL:  sent")
+            try:
+                if sock == csin:
+                    crout.send(packet.to_bytes())
+                elif sock == crin:
+                    csout.send(packet.to_bytes())
+            except:
+                CLOSE_REQUESTED = True
+                break
     
-    print()
-    print("CHANNEL:  CLOSING")        
+    #print()
+    #print("CHANNEL:  CLOSING")        
     csin.close()
     csout.close()
     crin.close()

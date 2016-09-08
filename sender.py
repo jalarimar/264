@@ -19,7 +19,7 @@ def send(sin, sout, file):
     num_sent_packets = 0
     
     while not (exit_flag or CLOSE_REQUESTED):
-        print("SENDER:   reading {} bytes".format(BLOCK_SIZE))
+        #print("SENDER:   reading {} bytes".format(BLOCK_SIZE))
         block = file.read(BLOCK_SIZE)
         if len(block) == 0:
             exit_flag = True
@@ -28,9 +28,14 @@ def send(sin, sout, file):
             packet = Packet(block, _next)
             
         while not CLOSE_REQUESTED:
-            print("SENDER:   try send {} bytes".format(PACKET_SIZE))
-            sout.send(packet.to_bytes())
-            readable, _, _ = select.select([sin], [], [], 1)
+            #print("SENDER:   try send {} bytes".format(PACKET_SIZE))
+            try:
+                sout.send(packet.to_bytes())
+                num_sent_packets += 1
+            except:
+                print("locked")
+                break
+            readable, _, _ = select.select([sin], [], [], 0.001)
             if readable:
                 sock = readable[0]
                 packet_bytes, address = sock.recvfrom(PACKET_SIZE)
@@ -40,13 +45,14 @@ def send(sin, sout, file):
                    and packet.data_len == 0 \
                    and packet.seqno == _next:
                     _next = 1 - _next
-                    num_sent_packets += 1
                     break
     
-    print()
-    print("SENDER:   sent {} packets!".format(num_sent_packets))
-    print()
-    print("SENDER:   CLOSING") 
+    #print()
+    #print("SENDER:   sent {} packets!".format(num_sent_packets))
+    print(num_sent_packets)
+    #print()
+    #print("SENDER:   CLOSING") 
+    print(_next)
     file.close()
     sin.close()
     sout.close()
